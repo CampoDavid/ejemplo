@@ -52,7 +52,7 @@ CREATE DATABASE tutorias;
 ```env
 DB_NAME=tutorias
 DB_USER=root
-DB_PASSWORD=          # (tu contraseña si tienes una)
+DB_PASSWORD=  1234        
 DB_HOST=localhost
 JWT_SECRET=secreto
 PORT=3000
