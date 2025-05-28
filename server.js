@@ -1,42 +1,48 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const helmet = require("helmet");
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 require("dotenv").config();
 const path = require("path");
 
 const db = require(path.join(__dirname, "models"));
+const errorHandler = require('./middleware/errorHandler');
+const rateLimiter = require('./middleware/rateLimiter');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// Middlewares de seguridad
+app.use(helmet());
+app.use(rateLimiter);
 app.use(cors());
 app.use(bodyParser.json());
 
+// Documentación Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./config/swagger.json"); 
-app.use("/document", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
+// Rutas
 const materialRouter = require('./routes/material.routes');
-app.use('/material', materialRouter);
-// app.use("/api/material", require(path.join(__dirname, "routes", "material.routes")));*/
-
 const usuariosRouter = require('./routes/usuarios.routes');
-app.use('/usuarios', usuariosRouter);
-// app.use("/api/usuarios", require(path.join(__dirname, "routes", "usuarios.routes")));
-
-const tutoriaRouter = require('./routes/tutoria.routes');
-app.use('/tutoria', tutoriaRouter);
-// app.use("/api/tutoria", require(path.join(__dirname, "routes", "tutoria.routes")));
-
+const tutoriaRouter = require('./routes/tutoriaRoutes');
 const reservasRouter = require('./routes/reservas.routes');
-app.use('/reservas', reservasRouter);
-//app.use("/api/reservas", require(path.join(__dirname, "routes", "reservas.routes")));
-
 const rolesRouter = require('./routes/roles.routes');
-app.use('/roles', rolesRouter);
-//app.use("/api/roles", require(path.join(__dirname, "routes", "roles.routes")));
 
+// Prefijo /api para todas las rutas
+app.use('/api/material', materialRouter);
+app.use('/api/usuarios', usuariosRouter);
+app.use('/api/tutorias', tutoriaRouter);
+app.use('/api/reservas', reservasRouter);
+app.use('/api/roles', rolesRouter);
+
+// Ruta de prueba
+app.get('/', (req, res) => {
+  res.json({ message: 'API funcionando correctamente' });
+});
+
+// Manejador de errores
+app.use(errorHandler);
 
 db.sequelize.sync()
   .then(() => {
@@ -45,7 +51,7 @@ db.sequelize.sync()
     if (process.env.NODE_ENV !== "test") {
       app.listen(PORT, () => {
         console.log(`🚀 Servidor corriendo en: http://localhost:${PORT}`);
-        console.log(`📄 Documentación Swagger en: http://localhost:${PORT}/document`);
+        console.log(`📚 Documentación disponible en: http://localhost:${PORT}/api-docs`);
       });
     }
   })

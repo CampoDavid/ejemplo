@@ -4,27 +4,33 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
-  process.env.DB_PASSWORD || '', // 👈 esto asegura que use '' si es undefined
+  process.env.DB_PASSWORD || '',
   {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     port: process.env.DB_PORT,
+    logging: process.env.NODE_ENV === 'development' ? console.log : false
   }
 );
-console.log('Variables de entorno:', {
-  DB_NAME: process.env.DB_NAME,
-  DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: process.env.DB_PORT,
-  DB_DIALECT: process.env.DB_DIALECT
-});
+
+// Solo log básico en producción
+if (process.env.NODE_ENV === 'production') {
+  console.log('Intentando conectar a la base de datos...');
+} else {
+  // Logs detallados solo en desarrollo
+  console.log('Variables de entorno de base de datos configuradas');
+}
 
 sequelize.authenticate()
   .then(() => {
-    console.log('Conexión exitosa a la base de datos');
+    console.log('✅ Conexión exitosa a la base de datos');
   })
   .catch((error) => {
-    console.error('Error al conectar a la base de datos:', error);
+    console.error('❌ Error al conectar a la base de datos');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Detalles del error:', error);
+    }
   });
+
+module.exports = sequelize;
       

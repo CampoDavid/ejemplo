@@ -42,14 +42,13 @@ module.exports = (sequelize, DataTypes) => {
           len: [8, 100],
         },
       },
-      rolId: {
+      rol_id: { // El nombre debe coincidir con foreignKey
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Rols',
+          model: 'Rol', // Nombre del modelo con el que se asocia
           key: 'id',
         },
-        field: 'rol_id'
       },
     },
     {
@@ -57,7 +56,6 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Usuario',
       underscored: true,
       timestamps: true,
-      
     }
   );
 

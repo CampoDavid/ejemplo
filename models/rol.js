@@ -6,32 +6,24 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Rol.hasMany(models.Usuario, {
         foreignKey: 'rol_id',
-        as: 'usuarios',
-        onDelete: 'CASCADE',
+        as: 'usuarios'
       });
     }
   }
-
-  Rol.init(
-    {
-      nombre: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      descripcion: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-    },
-    {
-      sequelize,
-      modelName: 'Rol',
-      tableName: 'Rols',
-      timestamps: true,
-      underscored: true,
+  
+  Rol.init({
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
     }
-  );
-
+  }, {
+    sequelize,
+    modelName: 'Rol',
+    tableName: 'Roles',
+    underscored: true,
+    timestamps: true
+  });
+  
   return Rol;
 };
